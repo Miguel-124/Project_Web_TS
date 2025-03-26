@@ -64,6 +64,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import { ref, onMounted } from 'vue'
 import type { Story, StoryPriority, StoryStatus } from '@/models/Story'
 import { StoryService } from '@/services/StoryService'
@@ -75,6 +76,7 @@ const service = new StoryService()
 const currentUser = useCurrentUser()
 const { activeProjectId } = useActiveProject()
 const { textareaRef, autoResize } = useAutoResizeTextarea()
+const router = useRouter()
 
 const stories = ref<Story[]>([])
 const newStory = ref({
@@ -84,9 +86,13 @@ const newStory = ref({
 })
 
 onMounted(() => {
-  if (activeProjectId.value) {
-    stories.value = service.getByProject(activeProjectId.value)
+  if (!activeProjectId.value) {
+    alert('Nie wybrano aktywnego projektu! Przejdź do listy projektów i wybierz jeden.')
+    router.push('/') // przekieruj do listy projektów
+    return
   }
+
+  stories.value = service.getByProject(activeProjectId.value)
 })
 
 function addStory() {

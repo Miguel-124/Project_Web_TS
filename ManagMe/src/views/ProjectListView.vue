@@ -39,7 +39,7 @@
           @click="setActive(project.id)"
           :class="['btn-active', 'btn', { selected: project.id === activeProjectId }]"
         >
-          Aktywny
+          {{ project.id === activeProjectId ? 'Dezaktywuj' : 'Aktywny' }}
         </button>
         <div class="actions">
           <router-link :to="`/edit/${project.id}`" class="btn btn-edit">Edytuj</router-link>
@@ -90,6 +90,6 @@ function deleteProject(id: string) {
 }
 
 function setActive(id: string) {
-  activeProjectId.value = id
+  activeProjectId.value = activeProjectId.value === id ? null : id
 }
 </script>
