@@ -1,6 +1,9 @@
 <template>
   <div class="container">
-    <h1 class="text-2xl font-bold mb-4">Projekty</h1>
+    <h1 class="">Projekty</h1>
+    <p class="user-info">
+      Zalogowany jako: <strong>{{ currentUser.firstName }} {{ currentUser.lastName }}</strong>
+    </p>
 
     <!-- Formularz -->
     <form @submit.prevent="addProject" class="form-wrapper">
@@ -19,13 +22,24 @@
 
     <!-- Lista projektów -->
     <ul>
-      <li v-for="project in projects" :key="project.id" class="project-item">
+      <li
+        v-for="project in projects"
+        :key="project.id"
+        class="project-item"
+        :class="{ active: project.id === activeProjectId }"
+      >
         <div class="project-details">
           <strong>{{ project.name }}</strong>
           <p>{{ project.description }}</p>
         </div>
+        <button
+          @click="setActive(project.id)"
+          :class="['btn-active', { selected: project.id === activeProjectId }]"
+        >
+          Aktywny
+        </button>
         <div class="actions">
-          <router-link :to="`/edit/${project.id}`" class="edit-btn">Edytuj</router-link>
+          <router-link :to="`/edit/${project.id}`" class="btn-edit">Edytuj</router-link>
           <button @click="deleteProject(project.id)">Usuń</button>
         </div>
       </li>
@@ -39,9 +53,13 @@ import type { Project } from '@/models/Project'
 import { useProjectService } from '@/composables/useProjectService'
 import type { NewProject } from '@/models/Project'
 import { useAutoResizeTextarea } from '@/composables/useAutoResizeTextarea'
+import { useCurrentUser } from '@/composables/useCurrentUser'
+import { useActiveProject } from '@/composables/useActiveProject'
 
+const currentUser = useCurrentUser()
 const { textareaRef, autoResize } = useAutoResizeTextarea()
 const service = useProjectService()
+const { activeProjectId } = useActiveProject()
 
 // Reaktywne dane
 const projects = ref<Project[]>([])
@@ -66,5 +84,9 @@ function addProject() {
 function deleteProject(id: string) {
   service.delete(id)
   projects.value = service.getAll()
+}
+
+function setActive(id: string) {
+  activeProjectId.value = id
 }
 </script>
