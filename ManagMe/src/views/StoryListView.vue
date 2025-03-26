@@ -1,22 +1,23 @@
 <template>
-  <div class="container">
+  <div>
     <h1>Historyjki projektu</h1>
-
-    <!-- Formularz -->
-    <form @submit.prevent="addStory" class="form-fields">
-      <input v-model="newStory.name" placeholder="Nazwa historyjki" required />
-      <textarea
-        v-model="newStory.description"
-        placeholder="Opis historyjki"
-        ref="textareaRef"
-        @input="autoResize"
-      />
-      <select v-model="newStory.priority">
-        <option value="low">Niski</option>
-        <option value="medium">Średni</option>
-        <option value="high">Wysoki</option>
-      </select>
-      <button type="submit">Dodaj</button>
+    <form @submit.prevent="addStory" class="form-wrapper">
+      <div class="form-fields">
+        <input v-model="newStory.name" placeholder="Nazwa historyjki" required />
+        <textarea
+          v-model="newStory.description"
+          placeholder="Opis historyjki"
+          ref="textareaRef"
+          @input="autoResize"
+          rows="2"
+        />
+        <select v-model="newStory.priority" rows="3">
+          <option value="low">Niski</option>
+          <option value="medium">Średni</option>
+          <option value="high">Wysoki</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-add">Dodaj</button>
     </form>
 
     <!-- Lista podzielona na statusy -->
@@ -33,7 +34,28 @@
             </small>
           </div>
           <div class="actions">
-            <button @click="deleteStory(story.id)">Usuń</button>
+            <button
+              v-if="story.status === 'todo'"
+              class="btn btn-edit"
+              @click="changeStatus(story, 'doing')"
+            >
+              → Rozpocznij →
+            </button>
+            <button
+              v-if="story.status === 'doing'"
+              class="btn btn-edit"
+              @click="changeStatus(story, 'done')"
+            >
+              ✓ Zakończ ✓
+            </button>
+            <button
+              v-if="story.status === 'done'"
+              class="btn btn-edit"
+              @click="changeStatus(story, 'todo')"
+            >
+              ⟲ Cofnij ⟲
+            </button>
+            <button @click="deleteStory(story.id)" class="btn">Usuń</button>
           </div>
         </li>
       </ul>
@@ -43,7 +65,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import type { Story, StoryPriority } from '@/models/Story'
+import type { Story, StoryPriority, StoryStatus } from '@/models/Story'
 import { StoryService } from '@/services/StoryService'
 import { useCurrentUser } from '@/composables/useCurrentUser'
 import { useActiveProject } from '@/composables/useActiveProject'
@@ -106,5 +128,13 @@ function getOwnerName(): string {
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr)
   return date.toLocaleDateString()
+}
+
+function changeStatus(story: Story, newStatus: StoryStatus) {
+  const updatedStory = { ...story, status: newStatus }
+  service.update(updatedStory)
+  if (activeProjectId.value) {
+    stories.value = service.getByProject(activeProjectId.value)
+  }
 }
 </script>

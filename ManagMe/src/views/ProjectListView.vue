@@ -17,7 +17,10 @@
           rows="2"
         />
       </div>
-      <button type="submit">Dodaj projekt</button>
+      <div class="actions">
+        <button type="submit" class="btn">Dodaj projekt</button>
+        <router-link to="/stories" class="btn btn-edit" rows="2">Otwórz projekt</router-link>
+      </div>
     </form>
 
     <!-- Lista projektów -->
@@ -34,13 +37,13 @@
         </div>
         <button
           @click="setActive(project.id)"
-          :class="['btn-active', { selected: project.id === activeProjectId }]"
+          :class="['btn-active', 'btn', { selected: project.id === activeProjectId }]"
         >
           Aktywny
         </button>
         <div class="actions">
-          <router-link :to="`/edit/${project.id}`" class="btn-edit">Edytuj</router-link>
-          <button @click="deleteProject(project.id)">Usuń</button>
+          <router-link :to="`/edit/${project.id}`" class="btn btn-edit">Edytuj</router-link>
+          <button @click="deleteProject(project.id)" class="btn">Usuń</button>
         </div>
       </li>
     </ul>
