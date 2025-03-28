@@ -20,8 +20,17 @@
       <button type="submit" class="btn btn-add">Dodaj</button>
     </form>
 
+    <div class="form-label">
+      <label for="priority-select">Priorytet: </label>
+      <select id="priority-select" v-model="selectedPriority">
+        <option value="all">Wszystkie</option>
+        <option value="low">Niski</option>
+        <option value="medium">Średni</option>
+        <option value="high">Wysoki</option>
+      </select>
+    </div>
     <!-- Lista podzielona na statusy -->
-    <div v-for="status in ['todo', 'doing', 'done']" :key="status">
+    <div v-for="status in statuses" :key="status">
       <h2 style="margin-top: 1.5rem">{{ status.toUpperCase() }}</h2>
       <ul>
         <li v-for="story in filteredStories(status)" :key="story.id" class="project-item">
@@ -37,12 +46,12 @@
             <button
               v-if="story.status === 'todo'"
               class="btn btn-edit"
-              @click="changeStatus(story, 'doing')"
+              @click="changeStatus(story, 'in progress')"
             >
               → Rozpocznij →
             </button>
             <button
-              v-if="story.status === 'doing'"
+              v-if="story.status === 'in progress'"
               class="btn btn-edit"
               @click="changeStatus(story, 'done')"
             >
@@ -84,6 +93,8 @@ const newStory = ref({
   description: '',
   priority: 'medium' as StoryPriority,
 })
+const selectedPriority = ref<'all' | StoryPriority>('all')
+const statuses: StoryStatus[] = ['todo', 'in progress', 'done']
 
 onMounted(() => {
   if (!activeProjectId.value) {
@@ -123,8 +134,12 @@ function deleteStory(id: string) {
   }
 }
 
-function filteredStories(status: string) {
-  return stories.value.filter((s) => s.status === status)
+function filteredStories(status: StoryStatus): Story[] {
+  return stories.value.filter(
+    (s) =>
+      s.status === status &&
+      (selectedPriority.value === 'all' || s.priority === selectedPriority.value),
+  )
 }
 
 function getOwnerName(): string {
