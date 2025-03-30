@@ -11,6 +11,7 @@ const router = createRouter({
       name: 'projects',
       component: ProjectListView,
     },
+
     {
       path: '/edit/:id',
       name: 'editProject',
@@ -19,8 +20,8 @@ const router = createRouter({
     {
       path: '/stories',
       name: 'stories',
-      component: StoryListView
-    }
+      component: StoryListView,
+    },
   ],
 })
 
