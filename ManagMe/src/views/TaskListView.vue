@@ -1,8 +1,7 @@
 <!-- view/TaskListView.vue -->
 <template>
   <div class="container">
-    <h1>Zadania historyjki</h1>
-
+    <h1>Zadania dla historyjki: {{ story?.name }}</h1>
     <!-- Formularz dodawania zadania -->
     <form @submit.prevent="addTask" class="form-wrapper">
       <div class="form-fields">
@@ -54,12 +53,15 @@ import { useRoute } from 'vue-router'
 import { TaskService } from '@/services/TaskService'
 import type { Task, TaskStatus, TaskPriority, NewTask } from '@/models/Task'
 import { useAutoResizeTextarea } from '@/composables/useAutoResizeTextarea'
+import { useStoryService } from '@/composables/useStoryService'
 
 const { textareaRef, autoResize } = useAutoResizeTextarea()
 const taskService = new TaskService()
 const route = useRoute()
 const storyId = route.params.storyId.toString()
 const tasks = ref<Task[]>([])
+const { getById } = useStoryService()
+const story = getById(storyId)
 
 // 🔸 Typ lokalny – tylko dane z formularza
 const newTask = ref<{

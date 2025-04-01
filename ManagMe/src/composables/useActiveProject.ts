@@ -18,9 +18,9 @@ function setActive(id: string | null) {
   activeProjectId.value = id
 }
 
-const { getProjectById } = useProjectService()
+const { getById } = useProjectService()
 const activeProject = computed<Project | null>(() => {
-  const project = activeProjectId.value ? getProjectById(activeProjectId.value) : null
+  const project = activeProjectId.value ? getById(activeProjectId.value) : null
   return project ?? null
 })
 

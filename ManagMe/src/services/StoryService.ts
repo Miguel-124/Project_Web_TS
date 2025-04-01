@@ -21,6 +21,10 @@ export class StoryService {
     return this.getStories().filter((s) => s.projectId === projectId)
   }
 
+  public getById(id: string): Story | undefined {
+    return this.getStories().find((s) => s.id === id)
+  }
+
   public deleteByProject(projectId: string) {
     const stories = this.getStories().filter((story) => story.projectId !== projectId)
     localStorage.setItem(this.storageKey, JSON.stringify(stories))

@@ -1,7 +1,7 @@
 <!-- views/StoryListView.vue -->
 <template>
   <div>
-    <h1>Historyjki projektu</h1>
+    <h1>Historyjki projektu: {{ activeProject?.name }}</h1>
     <form @submit.prevent="addStory" class="form-wrapper">
       <div class="form-fields">
         <input v-model="newStory.name" placeholder="Nazwa historyjki" required />
@@ -88,7 +88,7 @@ import { TaskService } from '@/services/TaskService'
 
 const service = new StoryService()
 const currentUser = useCurrentUser()
-const { activeProjectId } = useActiveProject()
+const { activeProject, activeProjectId } = useActiveProject()
 const { textareaRef, autoResize } = useAutoResizeTextarea()
 const router = useRouter()
 const taskService = new TaskService()
