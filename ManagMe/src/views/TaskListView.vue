@@ -41,10 +41,13 @@
           @end="onDragEnd"
         >
           <template #item="{ element: task }">
-            <div class="kanban-card" :data-id="task.id">
+            <div class="kanban-card" :data-id="task.id" :class="`priority-${task.priority}`">
               <strong>{{ task.name }}</strong>
               <p>{{ task.description }}</p>
               <small> Priorytet: {{ task.priority }} | Czas: {{ task.estimatedTime }}h </small>
+              <p v-if="task.assignedUserId">
+                <small>Przypisany: {{ getUserName(task.assignedUserId) }}</small>
+              </p>
               <div class="kanban-actions">
                 <router-link :to="`/tasks/${task.id}`" class="btn btn-edit">
                   Szczegóły
@@ -60,13 +63,15 @@
 
 <script setup lang="ts">
 import Draggable from 'vuedraggable'
-import type { DragEndEvent } from 'sortablejs'
+import type { SortableEvent } from 'sortablejs'
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { TaskService } from '@/services/TaskService'
 import type { Task, TaskStatus, TaskPriority, NewTask } from '@/models/Task'
 import { useAutoResizeTextarea } from '@/composables/useAutoResizeTextarea'
 import { useStoryService } from '@/composables/useStoryService'
+import { useUserList } from '@/composables/useUserList'
+import { useCurrentUser } from '@/composables/useCurrentUser'
 
 const { textareaRef, autoResize } = useAutoResizeTextarea()
 const taskService = new TaskService()
@@ -75,6 +80,8 @@ const storyId = route.params.storyId.toString()
 const tasks = ref<Task[]>([])
 const { getById } = useStoryService()
 const story = getById(storyId)
+const { users } = useUserList()
+const currentUser = useCurrentUser()
 
 // 🔸 Typ lokalny – tylko dane z formularza
 const newTask = ref<{
@@ -126,32 +133,45 @@ function filteredTasks(status: TaskStatus): Task[] {
   return tasks.value.filter((t) => t.status === status)
 }
 
-function onDragEnd(event: DragEndEvent) {
+function onDragEnd(event: SortableEvent) {
   const { item, to } = event
 
   // znajdź kolumnę (status) docelową
-  const newStatusColumn = to.closest('.kanban-column')
-  if (!newStatusColumn) return
+  const newStatusColumn = (to as HTMLElement).closest('.kanban-column')
+  if (!newStatusColumn || !item) return
 
   const newStatus = newStatusColumn.getAttribute('data-status')
-  if (!newStatus || !item) return
+  const taskId = item.getAttribute('data-id')
 
-  const taskId = item.dataset.id
+  if (!newStatus || !taskId) return
+
   const movedTask = tasks.value.find((t) => t.id.toString() === taskId)
 
   if (movedTask && movedTask.status !== newStatus) {
     movedTask.status = newStatus as TaskStatus
 
-    // zaktualizuj daty
-    if (newStatus === 'in progress' && !movedTask.startedAt) {
-      movedTask.startedAt = new Date().toISOString()
+    // przypisz użytkownika, jeśli przechodzi do "in progress" bez przypisanego
+    if (newStatus === 'in progress') {
+      if (!movedTask.startedAt) {
+        movedTask.startedAt = new Date().toISOString()
+      }
+      if (!movedTask.assignedUserId) {
+        movedTask.assignedUserId = currentUser.value.id
+      }
     }
+
+    // zakończone? ustaw datę zakończenia
     if (newStatus === 'done' && !movedTask.finishedAt) {
       movedTask.finishedAt = new Date().toISOString()
     }
 
     taskService.update(movedTask)
   }
+}
+
+function getUserName(userId: string): string {
+  const user = users.value.find((u) => u.id === userId)
+  return user ? user.fullName : 'nie przypisany'
 }
 </script>
 
@@ -192,7 +212,22 @@ function onDragEnd(event: DragEndEvent) {
 
 .kanban-actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   margin-top: 0.5rem;
+}
+
+.priority-low {
+  /* border: 1px solid #22c55e;  */
+  box-shadow: 0 0 10px 1px #22c55e;
+}
+
+.priority-medium {
+  /* border: 1px solid #facc15; żółty */
+  box-shadow: 0 0 10px 1px #facc15;
+}
+
+.priority-high {
+  /* border: 1px solid #ef4444; czerwony */
+  box-shadow: 0 0 10px 1px #ef4444;
 }
 </style>

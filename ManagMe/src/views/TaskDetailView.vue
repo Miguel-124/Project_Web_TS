@@ -14,6 +14,10 @@
       <p v-if="task.finishedAt">
         <strong>Data zakończenia:</strong> {{ formatDate(task.finishedAt) }}
       </p>
+      <p v-if="task?.assignedUserId">
+        <strong>Przypisany użytkownik:</strong>
+        {{ users.find((user) => user.id === task!.assignedUserId)?.fullName }}
+      </p>
 
       <div v-if="task.status === 'todo'">
         <label for="assign">Przypisz użytkownika:</label>
