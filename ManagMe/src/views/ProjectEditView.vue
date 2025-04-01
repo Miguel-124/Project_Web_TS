@@ -39,7 +39,7 @@ const project = ref<Project>({
 // Pobierz projekt po ID z URL
 onMounted(() => {
   const id = route.params.id as string
-  const existing = service.getById(id)
+  const existing = service.getProjectById(id)
   if (existing) {
     project.value = { ...existing }
     autoResize()

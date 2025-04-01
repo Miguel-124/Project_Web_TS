@@ -50,6 +50,7 @@ const taskService = new TaskService()
 const task = ref<Task | null>(null)
 const selectedUserId = ref('')
 const { users } = useUserList()
+const taskId = Number(route.params.taskId)
 
 const assignableUsers = users.value.filter((u) => u.role === 'developer' || u.role === 'devops')
 
@@ -58,7 +59,6 @@ function formatDate(dateStr: string): string {
 }
 
 onMounted(() => {
-  const taskId = route.params.taskId as string
   const found = taskService.getById(taskId)
   if (!found) {
     alert('Nie znaleziono zadania!')

@@ -18,14 +18,14 @@ export class Task {
 }
 
 new Task(
-  't1',
+  '1',
   'Poprawić formularz',
   'Zmiana pola input',
   'todo',
   'medium',
   'story123',
   5,
-  new Date().toISOString()
+  new Date().toISOString(),
 )
 
 export type NewTask = Omit<Task, 'id'>

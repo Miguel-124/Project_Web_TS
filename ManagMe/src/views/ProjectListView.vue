@@ -18,10 +18,7 @@
           rows="2"
         />
       </div>
-      <div class="actions">
-        <button type="submit" class="btn">Dodaj projekt</button>
-        <router-link to="/stories" class="btn btn-edit" rows="2">Otwórz projekt</router-link>
-      </div>
+      <button type="submit" class="btn btn-add">Dodaj projekt</button>
     </form>
 
     <!-- Lista projektów -->
@@ -36,12 +33,7 @@
           <strong>{{ project.name }}</strong>
           <p>{{ project.description }}</p>
         </div>
-        <button
-          @click="setActive(project.id)"
-          :class="['btn-active', 'btn', { selected: project.id === activeProjectId }]"
-        >
-          {{ project.id === activeProjectId ? 'Dezaktywuj' : 'Aktywny' }}
-        </button>
+        <button @click="openProject(project.id)" class="btn btn-open">Otwórz projekt</button>
         <div class="actions">
           <router-link :to="`/edit/${project.id}`" class="btn btn-edit">Edytuj</router-link>
           <button @click="deleteProject(project.id)" class="btn">Usuń</button>
@@ -59,11 +51,17 @@ import type { NewProject } from '@/models/Project'
 import { useAutoResizeTextarea } from '@/composables/useAutoResizeTextarea'
 import { useCurrentUser } from '@/composables/useCurrentUser'
 import { useActiveProject } from '@/composables/useActiveProject'
+import { useRouter } from 'vue-router'
+import { StoryService } from '@/services/StoryService'
+import { TaskService } from '@/services/TaskService'
 
+const storyService = new StoryService()
+const taskService = new TaskService()
 const currentUser = useCurrentUser()
 const { textareaRef, autoResize } = useAutoResizeTextarea()
 const service = useProjectService()
-const { activeProjectId } = useActiveProject()
+const { activeProjectId, setActive } = useActiveProject()
+const router = useRouter()
 
 // Reaktywne dane
 const projects = ref<Project[]>([])
@@ -84,13 +82,15 @@ function addProject() {
   newProject.value = { name: '', description: '' }
 }
 
-// Usuwanie projektu
 function deleteProject(id: string) {
+  taskService.deleteByProject(id)
+  storyService.deleteByProject(id)
   service.delete(id)
   projects.value = service.getAll()
 }
 
-function setActive(id: string) {
-  activeProjectId.value = activeProjectId.value === id ? null : id
+function openProject(projectId: string) {
+  setActive(projectId)
+  router.push('/stories')
 }
 </script>

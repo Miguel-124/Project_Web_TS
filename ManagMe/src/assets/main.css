@@ -140,6 +140,11 @@ button:hover {
   margin: 0 2%;
 }
 
+.btn-open {
+  background-color: #b85f2f;
+  margin: 0 2%;
+}
+
 .btn-active.selected {
   color: white;
 }

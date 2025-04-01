@@ -21,6 +21,11 @@ export class StoryService {
     return this.getStories().filter((s) => s.projectId === projectId)
   }
 
+  public deleteByProject(projectId: string) {
+    const stories = this.getStories().filter((story) => story.projectId !== projectId)
+    localStorage.setItem(this.storageKey, JSON.stringify(stories))
+  }
+
   public create(story: NewStory): void {
     const stories = this.getStories()
     const lastId = stories.length > 0 ? Math.max(...stories.map((s) => Number(s.id))) : 0

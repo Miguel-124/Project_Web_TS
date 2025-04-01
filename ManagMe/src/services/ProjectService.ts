@@ -21,7 +21,7 @@ export class ProjectService {
     return this.getProjects()
   }
 
-  public getById(id: string): Project | undefined {
+  public getProjectById(id: string): Project | undefined {
     return this.getProjects().find((p) => p.id === id)
   }
 

@@ -1,7 +1,7 @@
-<template>
-  <div class="p-6 max-w-3xl mx-auto">
-    <router-view />
-  </div>
-</template>
+<script setup lang="ts">
+console.log('App.vue mounted')
+</script>
 
-<script setup lang="ts"></script>
+<template>
+  <router-view :key="$route.path + JSON.stringify($route.params)" />
+</template>

@@ -1,6 +1,9 @@
+<!-- view/TaskListView.vue -->
 <template>
-  <div>
-    <h1>Zadania projektu</h1>
+  <div class="container">
+    <h1>Zadania historyjki</h1>
+
+    <!-- Formularz dodawania zadania -->
     <form @submit.prevent="addTask" class="form-wrapper">
       <div class="form-fields">
         <input v-model="newTask.name" placeholder="Nazwa zadania" required />
@@ -17,120 +20,136 @@
           <option value="high">Wysoki</option>
         </select>
         <input
-          v-model.number="newTask.estimatedTime"
           type="number"
+          v-model.number="newTask.estimatedTime"
           placeholder="Szacowany czas (h)"
-          required
+          min="1"
         />
       </div>
-      <button type="submit" class="btn btn-add">Dodaj</button>
+      <button type="submit" class="btn btn-add">Dodaj zadanie</button>
     </form>
 
-    <div class="form-label">
-      <label for="priority-select">Priorytet: </label>
-      <select id="priority-select" v-model="selectedPriority">
-        <option value="all">Wszystkie</option>
-        <option value="low">Niski</option>
-        <option value="medium">Średni</option>
-        <option value="high">Wysoki</option>
-      </select>
-    </div>
-
-    <div v-for="status in statuses" :key="status">
-      <h2 style="margin-top: 1.5rem">{{ status.toUpperCase() }}</h2>
-      <ul>
-        <li v-for="task in filteredTasks(status)" :key="task.id" class="project-item">
-          <div class="project-details">
+    <!-- Widok Kanban -->
+    <div class="kanban-board">
+      <div v-for="status in statuses" :key="status" class="kanban-column">
+        <h2 class="kanban-title">{{ statusMap[status] }}</h2>
+        <div class="kanban-cards">
+          <div v-for="task in filteredTasks(status)" :key="task.id" class="kanban-card">
             <strong>{{ task.name }}</strong>
             <p>{{ task.description }}</p>
-            <small>
-              Priorytet: {{ task.priority }} | Szacowany czas: {{ task.estimatedTime }}h | Dodano:
-              {{ formatDate(task.createdAt) }}
-            </small>
+            <small> Priorytet: {{ task.priority }} | Czas: {{ task.estimatedTime }}h </small>
+            <div class="kanban-actions">
+              <router-link :to="`/tasks/${task.id}`" class="btn btn-edit"> Szczegóły </router-link>
+            </div>
           </div>
-          <div class="actions">
-            <button @click="deleteTask(task.id)" class="btn">Usuń</button>
-          </div>
-        </li>
-      </ul>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import type { Task, TaskPriority, TaskStatus } from '@/models/Task'
+import { useRoute } from 'vue-router'
 import { TaskService } from '@/services/TaskService'
-import { useActiveProject } from '@/composables/useActiveProject'
+import type { Task, TaskStatus, TaskPriority, NewTask } from '@/models/Task'
 import { useAutoResizeTextarea } from '@/composables/useAutoResizeTextarea'
 
-const taskService = new TaskService()
-const { activeProjectId } = useActiveProject()
 const { textareaRef, autoResize } = useAutoResizeTextarea()
-const router = useRouter()
+const taskService = new TaskService()
 const route = useRoute()
-const storyId = route.params.storyId as string
-
+const storyId = route.params.storyId.toString()
 const tasks = ref<Task[]>([])
-const newTask = ref({
+
+// 🔸 Typ lokalny – tylko dane z formularza
+const newTask = ref<{
+  name: string
+  description: string
+  priority: TaskPriority
+  estimatedTime: number
+}>({
   name: '',
   description: '',
-  priority: 'medium' as TaskPriority,
+  priority: 'medium',
   estimatedTime: 1,
 })
 
-const selectedPriority = ref<'all' | TaskPriority>('all')
 const statuses: TaskStatus[] = ['todo', 'in progress', 'done']
+const statusMap: Record<TaskStatus, string> = {
+  todo: 'Do zrobienia',
+  'in progress': 'W trakcie',
+  done: 'Zrobione',
+}
 
 onMounted(() => {
-  if (!activeProjectId.value) {
-    alert('Nie wybrano aktywnego projektu!')
-    router.push('/')
-    return
-  }
-
-  tasks.value = taskService.getByStory(storyId)
+  tasks.value = taskService.getByStoryId(storyId)
 })
 
+// ✅ Budowanie pełnego obiektu NewTask przy tworzeniu
 function addTask() {
-  if (!activeProjectId.value) return
-
-  taskService.create({
-    name: newTask.value.name,
-    description: newTask.value.description,
-    priority: newTask.value.priority,
-    estimatedTime: newTask.value.estimatedTime,
-    storyId: storyId,
+  const taskToCreate: NewTask = {
+    ...newTask.value,
+    storyId,
     status: 'todo',
     createdAt: new Date().toISOString(),
-  })
+  }
 
-  tasks.value = taskService.getByStory(storyId)
+  taskService.create(taskToCreate)
+  tasks.value = taskService.getByStoryId(storyId)
+
   newTask.value = {
     name: '',
     description: '',
     priority: 'medium',
     estimatedTime: 1,
   }
+
   autoResize()
 }
 
-function deleteTask(id: string) {
-  taskService.delete(id)
-  tasks.value = taskService.getByStory(storyId)
-}
-
 function filteredTasks(status: TaskStatus): Task[] {
-  return tasks.value.filter(
-    (t) =>
-      t.status === status &&
-      (selectedPriority.value === 'all' || t.priority === selectedPriority.value),
-  )
-}
-
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr)
-  return date.toLocaleDateString()
+  return tasks.value.filter((t) => t.status === status)
 }
 </script>
+
+<style scoped>
+.kanban-board {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-top: 2rem;
+}
+
+.kanban-column {
+  flex: 1;
+  background-color: #1e1e1e;
+  border-radius: 1rem;
+  padding: 1rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.kanban-title {
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #60a5fa;
+}
+
+.kanban-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.kanban-card {
+  background-color: #2a2a2a;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid #444;
+}
+
+.kanban-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+</style>

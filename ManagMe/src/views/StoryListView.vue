@@ -84,12 +84,14 @@ import { StoryService } from '@/services/StoryService'
 import { useCurrentUser } from '@/composables/useCurrentUser'
 import { useActiveProject } from '@/composables/useActiveProject'
 import { useAutoResizeTextarea } from '@/composables/useAutoResizeTextarea'
+import { TaskService } from '@/services/TaskService'
 
 const service = new StoryService()
 const currentUser = useCurrentUser()
 const { activeProjectId } = useActiveProject()
 const { textareaRef, autoResize } = useAutoResizeTextarea()
 const router = useRouter()
+const taskService = new TaskService()
 
 const stories = ref<Story[]>([])
 const newStory = ref({
@@ -133,9 +135,8 @@ function addStory() {
 
 function deleteStory(id: string) {
   service.delete(id)
-  if (activeProjectId.value) {
-    stories.value = service.getByProject(activeProjectId.value)
-  }
+  taskService.deleteByStory(id) // 👈 nowa linia
+  stories.value = service.getByProject(activeProjectId.value!)
 }
 
 function filteredStories(status: StoryStatus): Story[] {
