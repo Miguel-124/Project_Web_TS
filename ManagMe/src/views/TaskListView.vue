@@ -118,7 +118,7 @@ function addTask() {
 
 function deleteTask(id: string) {
   taskService.delete(id)
-  tasks.value = taskService.getAll().filter((t) => t.storyId.startsWith(activeProjectId.value!))
+  tasks.value = taskService.getByStory(storyId)
 }
 
 function filteredTasks(status: TaskStatus): Task[] {
