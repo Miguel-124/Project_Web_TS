@@ -1,3 +1,4 @@
+// services/StoryService.ts
 import type { Story, NewStory } from '@/models/Story'
 
 export class StoryService {
@@ -20,29 +21,29 @@ export class StoryService {
     return this.getStories().filter((s) => s.projectId === projectId)
   }
 
-  public create(project: NewStory): void {
-    const projects = this.getStories()
-    const lastId = projects.length > 0 ? Math.max(...projects.map((p) => Number(p.id))) : 0
+  public create(story: NewStory): void {
+    const stories = this.getStories()
+    const lastId = stories.length > 0 ? Math.max(...stories.map((s) => Number(s.id))) : 0
 
-    const newProject: Story = {
-      ...project,
+    const newStory: Story = {
+      ...story,
       id: (lastId + 1).toString(),
       createdAt: new Date().toISOString(),
     }
 
-    projects.push(newProject)
-    this.saveStories(projects)
+    stories.push(newStory)
+    this.saveStories(stories)
   }
 
   public update(updated: Story): void {
-    let projects = this.getStories()
-    projects = projects.map((p) => (p.id === updated.id ? updated : p))
-    this.saveStories(projects)
+    let stories = this.getStories()
+    stories = stories.map((s) => (s.id === updated.id ? updated : s))
+    this.saveStories(stories)
   }
 
   public delete(id: string): void {
-    let projects = this.getStories()
-    projects = projects.filter((p) => p.id !== id)
-    this.saveStories(projects)
+    let stories = this.getStories()
+    stories = stories.filter((s) => s.id !== id)
+    this.saveStories(stories)
   }
 }

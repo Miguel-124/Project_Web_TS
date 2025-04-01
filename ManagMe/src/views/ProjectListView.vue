@@ -1,3 +1,4 @@
+<!-- views/ProjectListView.vue -->
 <template>
   <div class="container">
     <h1 class="">Projekty</h1>

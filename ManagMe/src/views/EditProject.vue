@@ -1,3 +1,4 @@
+<!-- views/EditProject.vue -->
 <template>
   <div>
     <h1>Edytuj projekt</h1>

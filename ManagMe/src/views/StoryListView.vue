@@ -1,3 +1,4 @@
+<!-- views/StoryListView.vue -->
 <template>
   <div>
     <h1>Historyjki projektu</h1>
