@@ -59,7 +59,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import type { Task, TaskPriority, TaskStatus } from '@/models/Task'
 import { TaskService } from '@/services/TaskService'
 import { useActiveProject } from '@/composables/useActiveProject'
@@ -69,6 +69,8 @@ const taskService = new TaskService()
 const { activeProjectId } = useActiveProject()
 const { textareaRef, autoResize } = useAutoResizeTextarea()
 const router = useRouter()
+const route = useRoute()
+const storyId = route.params.storyId as string
 
 const tasks = ref<Task[]>([])
 const newTask = ref({
@@ -88,7 +90,7 @@ onMounted(() => {
     return
   }
 
-  tasks.value = taskService.getAll().filter((t) => t.storyId.startsWith(activeProjectId.value!))
+  tasks.value = taskService.getByStory(storyId)
 })
 
 function addTask() {
@@ -99,12 +101,12 @@ function addTask() {
     description: newTask.value.description,
     priority: newTask.value.priority,
     estimatedTime: newTask.value.estimatedTime,
-    storyId: activeProjectId.value, // tymczasowo przypisujemy ID projektu jako storyId
+    storyId: storyId,
     status: 'todo',
     createdAt: new Date().toISOString(),
   })
 
-  tasks.value = taskService.getAll().filter((t) => t.storyId.startsWith(activeProjectId.value!))
+  tasks.value = taskService.getByStory(storyId)
   newTask.value = {
     name: '',
     description: '',

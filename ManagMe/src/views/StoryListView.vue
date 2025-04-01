@@ -44,6 +44,9 @@
             </small>
           </div>
           <div class="actions">
+            <router-link :to="`/story/${story.id}/tasks`" class="btn btn-details">
+              Zadania
+            </router-link>
             <button
               v-if="story.status === 'todo'"
               class="btn btn-edit"
