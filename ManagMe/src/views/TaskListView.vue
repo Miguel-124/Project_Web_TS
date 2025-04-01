@@ -30,24 +30,37 @@
 
     <!-- Widok Kanban -->
     <div class="kanban-board">
-      <div v-for="status in statuses" :key="status" class="kanban-column">
+      <div v-for="status in statuses" :key="status" class="kanban-column" :data-status="status">
         <h2 class="kanban-title">{{ statusMap[status] }}</h2>
-        <div class="kanban-cards">
-          <div v-for="task in filteredTasks(status)" :key="task.id" class="kanban-card">
-            <strong>{{ task.name }}</strong>
-            <p>{{ task.description }}</p>
-            <small> Priorytet: {{ task.priority }} | Czas: {{ task.estimatedTime }}h </small>
-            <div class="kanban-actions">
-              <router-link :to="`/tasks/${task.id}`" class="btn btn-edit"> Szczegóły </router-link>
+
+        <Draggable
+          :list="filteredTasks(status)"
+          group="tasks"
+          item-key="id"
+          class="kanban-cards"
+          @end="onDragEnd"
+        >
+          <template #item="{ element: task }">
+            <div class="kanban-card" :data-id="task.id">
+              <strong>{{ task.name }}</strong>
+              <p>{{ task.description }}</p>
+              <small> Priorytet: {{ task.priority }} | Czas: {{ task.estimatedTime }}h </small>
+              <div class="kanban-actions">
+                <router-link :to="`/tasks/${task.id}`" class="btn btn-edit">
+                  Szczegóły
+                </router-link>
+              </div>
             </div>
-          </div>
-        </div>
+          </template>
+        </Draggable>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import Draggable from 'vuedraggable'
+import type { DragEndEvent } from 'sortablejs'
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { TaskService } from '@/services/TaskService'
@@ -111,6 +124,34 @@ function addTask() {
 
 function filteredTasks(status: TaskStatus): Task[] {
   return tasks.value.filter((t) => t.status === status)
+}
+
+function onDragEnd(event: DragEndEvent) {
+  const { item, to } = event
+
+  // znajdź kolumnę (status) docelową
+  const newStatusColumn = to.closest('.kanban-column')
+  if (!newStatusColumn) return
+
+  const newStatus = newStatusColumn.getAttribute('data-status')
+  if (!newStatus || !item) return
+
+  const taskId = item.dataset.id
+  const movedTask = tasks.value.find((t) => t.id.toString() === taskId)
+
+  if (movedTask && movedTask.status !== newStatus) {
+    movedTask.status = newStatus as TaskStatus
+
+    // zaktualizuj daty
+    if (newStatus === 'in progress' && !movedTask.startedAt) {
+      movedTask.startedAt = new Date().toISOString()
+    }
+    if (newStatus === 'done' && !movedTask.finishedAt) {
+      movedTask.finishedAt = new Date().toISOString()
+    }
+
+    taskService.update(movedTask)
+  }
 }
 </script>
 
