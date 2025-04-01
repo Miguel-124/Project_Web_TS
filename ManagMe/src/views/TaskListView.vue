@@ -27,6 +27,15 @@
       </div>
       <button type="submit" class="btn btn-add">Dodaj zadanie</button>
     </form>
+    <div class="form-label" style="margin-top: -1.5rem">
+      <label for="priority-filter">Filtruj po priorytecie:</label>
+      <select id="priority-filter" v-model="selectedPriority" class="input">
+        <option value="all">Wszystkie</option>
+        <option value="low">Niski</option>
+        <option value="medium">Średni</option>
+        <option value="high">Wysoki</option>
+      </select>
+    </div>
 
     <!-- Widok Kanban -->
     <div class="kanban-board">
@@ -96,6 +105,7 @@ const newTask = ref<{
   estimatedTime: 1,
 })
 
+const selectedPriority = ref<'all' | TaskPriority>('all')
 const statuses: TaskStatus[] = ['todo', 'in progress', 'done']
 const statusMap: Record<TaskStatus, string> = {
   todo: 'Do zrobienia',
@@ -130,7 +140,11 @@ function addTask() {
 }
 
 function filteredTasks(status: TaskStatus): Task[] {
-  return tasks.value.filter((t) => t.status === status)
+  return tasks.value.filter(
+    (t) =>
+      t.status === status &&
+      (selectedPriority.value === 'all' || t.priority === selectedPriority.value),
+  )
 }
 
 function onDragEnd(event: SortableEvent) {
