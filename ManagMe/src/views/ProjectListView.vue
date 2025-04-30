@@ -3,7 +3,7 @@
   <div class="container">
     <h1 class="">Projekty</h1>
     <p class="user-info">
-      Zalogowany jako: <strong>{{ currentUser.firstName }} {{ currentUser.lastName }}</strong>
+      Zalogowany jako: <strong>{{ currentUser?.firstName }} {{ currentUser?.lastName }}</strong>
     </p>
 
     <!-- Formularz -->
@@ -49,15 +49,17 @@ import type { Project } from '@/models/Project'
 import { useProjectService } from '@/composables/useProjectService'
 import type { NewProject } from '@/models/Project'
 import { useAutoResizeTextarea } from '@/composables/useAutoResizeTextarea'
-import { useCurrentUser } from '@/composables/useCurrentUser'
 import { useActiveProject } from '@/composables/useActiveProject'
 import { useRouter } from 'vue-router'
 import { StoryService } from '@/services/StoryService'
 import { TaskService } from '@/services/TaskService'
+import { useAuthStore } from '@/stores/authStore'
+import { storeToRefs } from 'pinia'
 
+const authStore = useAuthStore()
+const { currentUser } = storeToRefs(authStore)
 const storyService = new StoryService()
 const taskService = new TaskService()
-const currentUser = useCurrentUser()
 const { textareaRef, autoResize } = useAutoResizeTextarea()
 const service = useProjectService()
 const { activeProjectId, setActive } = useActiveProject()

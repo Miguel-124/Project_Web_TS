@@ -9,7 +9,27 @@ import router from './router'
 
 const app = createApp(App)
 
-app.use(createPinia())
+const pinia = createPinia()
+app.use(pinia)
 app.use(router)
+
+import { useAuthStore } from '@/stores/authStore'
+
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore()
+  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
+
+  console.log('beforeEach triggered | requiresAuth:', requiresAuth, '| token:', authStore.token)
+
+  if (requiresAuth && (!authStore.token || !authStore.currentUser)) {
+    console.log(' Brak tokenu – przekierowanie do /login')
+    next('/login')
+  } else if (to.path === '/login' && authStore.token && authStore.currentUser) {
+    console.log(' Już zalogowany – przekierowanie na /')
+    next('/')
+  } else {
+    next()
+  }
+})
 
 app.mount('#app')

@@ -80,7 +80,7 @@ import type { Task, TaskStatus, TaskPriority, NewTask } from '@/models/Task'
 import { useAutoResizeTextarea } from '@/composables/useAutoResizeTextarea'
 import { useStoryService } from '@/composables/useStoryService'
 import { useUserList } from '@/composables/useUserList'
-import { useCurrentUser } from '@/composables/useCurrentUser'
+import { useAuthStore } from '@/stores/authStore'
 
 const { textareaRef, autoResize } = useAutoResizeTextarea()
 const taskService = new TaskService()
@@ -90,7 +90,8 @@ const tasks = ref<Task[]>([])
 const { getById } = useStoryService()
 const story = getById(storyId)
 const { users } = useUserList()
-const currentUser = useCurrentUser()
+const authStore = useAuthStore()
+const currentUser = authStore.currentUser
 
 // 🔸 Typ lokalny – tylko dane z formularza
 const newTask = ref<{
@@ -170,7 +171,9 @@ function onDragEnd(event: SortableEvent) {
         movedTask.startedAt = new Date().toISOString()
       }
       if (!movedTask.assignedUserId) {
-        movedTask.assignedUserId = currentUser.value.id
+        if (currentUser) {
+          movedTask.assignedUserId = currentUser.id
+        }
       }
     }
 

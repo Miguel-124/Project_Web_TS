@@ -81,13 +81,14 @@ import { useRouter } from 'vue-router'
 import { ref, onMounted } from 'vue'
 import type { Story, StoryPriority, StoryStatus } from '@/models/Story'
 import { StoryService } from '@/services/StoryService'
-import { useCurrentUser } from '@/composables/useCurrentUser'
 import { useActiveProject } from '@/composables/useActiveProject'
 import { useAutoResizeTextarea } from '@/composables/useAutoResizeTextarea'
 import { TaskService } from '@/services/TaskService'
+import { useAuthStore } from '@/stores/authStore'
 
 const service = new StoryService()
-const currentUser = useCurrentUser()
+const authStore = useAuthStore()
+const currentUser = authStore.currentUser!
 const { activeProject, activeProjectId } = useActiveProject()
 const { textareaRef, autoResize } = useAutoResizeTextarea()
 const router = useRouter()
@@ -121,7 +122,7 @@ function addStory() {
     priority: newStory.value.priority,
     projectId: activeProjectId.value,
     status: 'todo',
-    ownerId: currentUser.value.id,
+    ownerId: currentUser?.id ?? '',
   })
 
   stories.value = service.getByProject(activeProjectId.value)
@@ -148,7 +149,7 @@ function filteredStories(status: StoryStatus): Story[] {
 }
 
 function getOwnerName(): string {
-  return `${currentUser.value.firstName} ${currentUser.value.lastName}`
+  return `${currentUser.firstName} ${currentUser.lastName}`
 }
 
 function formatDate(dateStr: string): string {
