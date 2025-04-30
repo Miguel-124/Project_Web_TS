@@ -14,6 +14,11 @@ app.use(pinia)
 app.use(router)
 
 import { useAuthStore } from '@/stores/authStore'
+import { refreshTokenIfNeeded } from '@/composables/useTokenRefresher'
+
+setInterval(() => {
+  refreshTokenIfNeeded()
+}, 50000)
 
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()

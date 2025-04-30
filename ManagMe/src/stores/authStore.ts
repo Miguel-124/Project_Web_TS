@@ -13,20 +13,24 @@ export const useAuthStore = defineStore('auth', () => {
     role: string
   } | null>(JSON.parse(localStorage.getItem('currentUser') || 'null'))
 
-  // ⬇️ PRZYWRACANIE z localStorage przy starcie
+  // PRZYWRACANIE z localStorage przy starcie
   const savedUser = localStorage.getItem('currentUser')
   if (savedUser) {
     currentUser.value = JSON.parse(savedUser)
   }
 
+  const refreshToken = ref<string | null>(localStorage.getItem('refreshToken'))
+
   function setAuth(
     newToken: string,
-    user: { id: string; username: string; firstName: string; lastName: string; role: string },
+    user: { id: string; username: string; firstName: string; lastName: string; role: string }, newRefreshToken: string
   ) {
     token.value = newToken
     currentUser.value = user
+    refreshToken.value = newRefreshToken
     localStorage.setItem('token', newToken)
     localStorage.setItem('currentUser', JSON.stringify(user))
+    localStorage.setItem('refreshToken', newRefreshToken)
   }
 
   function logout() {
@@ -38,6 +42,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   return {
     token,
+    refreshToken,
     currentUser,
     setAuth,
     logout,

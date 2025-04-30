@@ -3,11 +3,14 @@
   <div class="container">
     <h1 class="">Projekty</h1>
     <p class="user-info">
-      Zalogowany jako: <strong>{{ currentUser?.firstName }} {{ currentUser?.lastName }}</strong>
+      Zalogowany jako:
+      <strong>{{ currentUser?.firstName }} {{ currentUser?.lastName }}</strong> (rola:
+      <em>{{ currentUser?.role }}</em
+      >)
     </p>
 
     <!-- Formularz -->
-    <form @submit.prevent="addProject" class="form-wrapper">
+    <form v-if="hasRole('admin')" @submit.prevent="addProject" class="form-wrapper">
       <div class="form-fields">
         <input v-model="newProject.name" placeholder="Nazwa projektu" required />
         <textarea
@@ -34,7 +37,7 @@
           <p>{{ project.description }}</p>
         </div>
         <button @click="openProject(project.id)" class="btn btn-open">Otwórz projekt</button>
-        <div class="actions">
+        <div class="actions" v-if="hasRole('admin')">
           <router-link :to="`/edit/${project.id}`" class="btn btn-edit">Edytuj</router-link>
           <button @click="deleteProject(project.id)" class="btn">Usuń</button>
         </div>
@@ -55,7 +58,9 @@ import { StoryService } from '@/services/StoryService'
 import { TaskService } from '@/services/TaskService'
 import { useAuthStore } from '@/stores/authStore'
 import { storeToRefs } from 'pinia'
+import { usePermissions } from '@/composables/usePermissions'
 
+const { hasRole } = usePermissions()
 const authStore = useAuthStore()
 const { currentUser } = storeToRefs(authStore)
 const storyService = new StoryService()

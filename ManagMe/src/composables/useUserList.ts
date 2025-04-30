@@ -1,12 +1,14 @@
-import { User } from '@/models/User'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import type { User } from '@/models/User'
 
-const users = ref<User[]>([
-  new User('1', 'Michał', 'Górecki', 'admin'),
-  new User('2', 'Oskar', 'Brózda', 'devops'),
-  new User('3', 'Ryszard', 'Brzegowy', 'developer'),
-])
+const users = ref<User[]>([])
 
 export function useUserList() {
+  onMounted(async () => {
+    const res = await fetch('http://localhost:3000/users')
+    const data = await res.json()
+    users.value = data
+  })
+
   return { users }
 }

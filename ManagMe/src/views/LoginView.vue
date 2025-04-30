@@ -22,7 +22,6 @@ const error = ref('')
 const router = useRouter()
 const authStore = useAuthStore()
 
-
 async function login() {
   error.value = ''
   try {
@@ -37,7 +36,7 @@ async function login() {
     }
 
     const data = await res.json()
-    authStore.setAuth(data.token, data.user)
+    authStore.setAuth(data.token, data.user, data.refreshToken)
 
     router.push('/') // przekieruj na stronę główną lub dashboard
   } catch (err) {

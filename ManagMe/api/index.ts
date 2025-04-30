@@ -84,6 +84,14 @@ app.post('/refreshToken', (req: Request, res: Response) => {
   return res.status(200).json({ token: newToken, refreshToken: newRefreshToken })
 })
 
+app.get('/users', (req: Request, res: Response) => {
+  const usersWithoutPasswords = users.map((user) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...rest } = user
+    return rest
+  })
+  res.status(200).json(usersWithoutPasswords)
+})
 
 app.get('/me', verifyToken, (req: Request, res: Response) => {
   return res.status(200).json(req.user)

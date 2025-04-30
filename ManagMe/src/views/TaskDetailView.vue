@@ -41,13 +41,13 @@
           <select v-model="task.assignedUserId" class="input">
             <option value="">Brak</option>
             <option v-for="user in assignableUsers" :key="user.id" :value="user.id">
-              {{ user.fullName }} ({{ user.role }})
+              {{ user.firstName }} {{ user.lastName }} ({{ user.role }})
             </option>
           </select>
         </template>
         <template v-else>
           <p v-if="task.assignedUserId">
-            {{ users.find((user) => user.id === task!.assignedUserId)?.fullName }}
+            {{ getUserInfo(task.assignedUserId) }}
           </p>
           <p v-else>Nieprzypisany</p>
         </template>
@@ -58,7 +58,7 @@
         <label for="assign">Przypisz użytkownika:</label>
         <select id="assign" v-model="selectedUserId" class="input">
           <option v-for="user in assignableUsers" :key="user.id" :value="user.id">
-            {{ user.fullName }} ({{ user.role }})
+            {{ user.firstName }} {{ user.lastName }} ({{ user.role }})
           </option>
         </select>
       </div>
@@ -144,6 +144,11 @@ function assignUser() {
 
   taskService.update(task.value)
   alert('Zadanie rozpoczęte!')
+}
+
+function getUserInfo(userId: string): string {
+  const user = users.value.find((u) => u.id === userId)
+  return user ? `${user.firstName} ${user.lastName} (${user.role})` : 'Nieznany użytkownik'
 }
 
 function markAsDone() {

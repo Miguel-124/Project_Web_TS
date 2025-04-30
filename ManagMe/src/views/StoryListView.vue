@@ -2,7 +2,7 @@
 <template>
   <div>
     <h1>Historyjki projektu: {{ activeProject?.name }}</h1>
-    <form @submit.prevent="addStory" class="form-wrapper">
+    <form @submit.prevent="addStory" v-if="hasRole('admin')" class="form-wrapper">
       <div class="form-fields">
         <input v-model="newStory.name" placeholder="Nazwa historyjki" required />
         <textarea
@@ -68,7 +68,7 @@
             >
               ⟲ Cofnij ⟲
             </button>
-            <button @click="deleteStory(story.id)" class="btn">Usuń</button>
+            <button @click="deleteStory(story.id)" v-if="hasRole('admin')" class="btn">Usuń</button>
           </div>
         </li>
       </ul>
@@ -85,7 +85,9 @@ import { useActiveProject } from '@/composables/useActiveProject'
 import { useAutoResizeTextarea } from '@/composables/useAutoResizeTextarea'
 import { TaskService } from '@/services/TaskService'
 import { useAuthStore } from '@/stores/authStore'
+import { usePermissions } from '@/composables/usePermissions'
 
+const { hasRole } = usePermissions()
 const service = new StoryService()
 const authStore = useAuthStore()
 const currentUser = authStore.currentUser!

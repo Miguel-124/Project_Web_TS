@@ -188,7 +188,7 @@ function onDragEnd(event: SortableEvent) {
 
 function getUserName(userId: string): string {
   const user = users.value.find((u) => u.id === userId)
-  return user ? user.fullName : 'nie przypisany'
+  return user ? `${user.firstName} ${user.lastName} (${user.role})` : 'nieprzypisany'
 }
 </script>
 
