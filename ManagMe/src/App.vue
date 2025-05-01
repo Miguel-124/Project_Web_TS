@@ -4,7 +4,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 
-const darkMode = ref(false)
+const darkMode = ref(true)
 const authStore = useAuthStore()
 const router = useRouter()
 const { currentUser } = storeToRefs(authStore)

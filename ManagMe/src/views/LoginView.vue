@@ -1,4 +1,3 @@
-<!-- views/ProjectListView.vue -->
 <template>
   <div class="container">
     <h1>Logowanie</h1>
@@ -8,6 +7,28 @@
       <button type="submit" class="btn">Zaloguj</button>
     </form>
     <p v-if="error" class="error">{{ error }}</p>
+
+    <!-- Google Login Button -->
+    <div
+      id="g_id_onload"
+      data-client_id="335690842092-a73jf8ip34uugetkqut8jmim3aln2u9j.apps.googleusercontent.com"
+      data-context="signin"
+      data-ux_mode="popup"
+      data-callback="handleCredentialResponse"
+      data-auto_select="true"
+      data-itp_support="true"
+    ></div>
+
+    <div
+      style="margin-top: 5%"
+      class="g_id_signin"
+      data-type="standard"
+      data-shape="pill"
+      data-theme="outline"
+      data-text="signin_with"
+      data-size="large"
+      data-logo_alignment="left"
+    ></div>
   </div>
 </template>
 
@@ -37,14 +58,31 @@ async function login() {
 
     const data = await res.json()
     authStore.setAuth(data.token, data.user, data.refreshToken)
-
-    router.push('/') // przekieruj na stronę główną lub dashboard
+    router.push('/')
   } catch (err) {
-    if (err instanceof Error) {
-      error.value = err.message
-    } else {
-      error.value = 'Wystąpił nieoczekiwany błąd'
+    error.value = err instanceof Error ? err.message : 'Wystąpił nieoczekiwany błąd'
+  }
+}
+
+// @ts-expect-error - global callback dla Google API
+window.handleCredentialResponse = async (response: { credential: string }) => {
+  try {
+    const res = await fetch('http://localhost:3000/google-login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: response.credential }),
+    })
+
+    if (!res.ok) {
+      throw new Error('Błąd logowania Google')
     }
+
+    const data = await res.json()
+    authStore.setAuth(data.token, data.user, data.refreshToken)
+    router.push('/')
+  } catch (err) {
+    alert('Błąd logowania Google')
+    console.error(err)
   }
 }
 </script>
