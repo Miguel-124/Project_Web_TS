@@ -66,16 +66,30 @@ export function refreshToken(req: Request, res: Response) {
 
   try {
     const decoded = jwt.verify(refreshToken, REFRESH_SECRET) as { id: string }
-    const user = users.find((u) => u.id === decoded.id)
-    if (!user) return res.status(401).json({ message: 'Invalid refresh token' })
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password: _, ...userData } = user
+    const existingUser = users.find((u) => u.id === decoded.id)
+
+    let userData
+    if (existingUser) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, ...rest } = existingUser
+      userData = rest
+    } else {
+      userData = {
+        id: decoded.id,
+        username: 'guest',
+        firstName: 'Google',
+        lastName: 'User',
+        role: 'guest' as const,
+      }
+    }
+
     const newToken = jwt.sign(userData, JWT_SECRET, { expiresIn: '1h' })
-    const newRefreshToken = jwt.sign({ id: user.id }, REFRESH_SECRET, { expiresIn: '7d' })
+    const newRefreshToken = jwt.sign({ id: userData.id }, REFRESH_SECRET, { expiresIn: '7d' })
 
     res.json({ token: newToken, refreshToken: newRefreshToken })
-  } catch {
+  } catch (err) {
+    console.error('refreshToken error', err)
     res.status(401).json({ message: 'Invalid refresh token' })
   }
 }

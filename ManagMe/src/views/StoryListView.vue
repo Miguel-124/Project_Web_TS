@@ -48,21 +48,21 @@
               Zadania
             </router-link>
             <button
-              v-if="story.status === 'todo'"
+              v-if="story.status === 'todo' && !hasRole('guest')"
               class="btn btn-edit"
               @click="changeStatus(story, 'in progress')"
             >
               → Rozpocznij →
             </button>
             <button
-              v-if="story.status === 'in progress'"
+              v-if="story.status === 'in progress' && !hasRole('guest')"
               class="btn btn-edit"
               @click="changeStatus(story, 'done')"
             >
               ✓ Zakończ ✓
             </button>
             <button
-              v-if="story.status === 'done'"
+              v-if="story.status === 'done' && !hasRole('guest')"
               class="btn btn-edit"
               @click="changeStatus(story, 'todo')"
             >

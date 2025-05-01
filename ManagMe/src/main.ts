@@ -24,7 +24,7 @@ router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
 
-  console.log('beforeEach triggered | requiresAuth:', requiresAuth, '| token:', authStore.token)
+  //console.log('beforeEach triggered | requiresAuth:', requiresAuth, '| token:', authStore.token)
 
   if (requiresAuth && (!authStore.token || !authStore.currentUser)) {
     console.log(' Brak tokenu – przekierowanie do /login')

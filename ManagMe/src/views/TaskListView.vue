@@ -3,7 +3,7 @@
   <div class="container">
     <h1>Zadania dla historyjki: {{ story?.name }}</h1>
     <!-- Formularz dodawania zadania -->
-    <form @submit.prevent="addTask" class="form-wrapper">
+    <form @submit.prevent="addTask" v-if="!hasRole('guest')" class="form-wrapper">
       <div class="form-fields">
         <input v-model="newTask.name" placeholder="Nazwa zadania" required />
         <textarea
@@ -57,7 +57,7 @@
               <p v-if="task.assignedUserId">
                 <small>Przypisany: {{ getUserName(task.assignedUserId) }}</small>
               </p>
-              <div class="kanban-actions">
+              <div v-if="!hasRole('guest')" class="kanban-actions">
                 <router-link :to="`/tasks/${task.id}`" class="btn btn-edit">
                   Szczegóły
                 </router-link>
@@ -92,6 +92,9 @@ const story = getById(storyId)
 const { users } = useUserList()
 const authStore = useAuthStore()
 const currentUser = authStore.currentUser
+const hasRole = (role: string) => {
+  return currentUser && currentUser.role === role
+}
 
 // 🔸 Typ lokalny – tylko dane z formularza
 const newTask = ref<{
