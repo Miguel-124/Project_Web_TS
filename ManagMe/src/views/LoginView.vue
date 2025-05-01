@@ -8,35 +8,52 @@
     </form>
     <p v-if="error" class="error">{{ error }}</p>
 
-    <!-- Google Login Button -->
-    <div
-      id="g_id_onload"
-      data-client_id="335690842092-a73jf8ip34uugetkqut8jmim3aln2u9j.apps.googleusercontent.com"
-      data-context="signin"
-      data-ux_mode="popup"
-      data-callback="handleCredentialResponse"
-      data-auto_select="true"
-      data-itp_support="true"
-    ></div>
-
-    <div
-      style="margin-top: 5%"
-      class="g_id_signin"
-      data-type="standard"
-      data-shape="pill"
-      data-theme="outline"
-      data-text="signin_with"
-      data-size="large"
-      data-logo_alignment="left"
-    ></div>
+    <!-- Kontener na przycisk Google -->
+    <div id="google-signin-btn" style="margin-top: 5%"></div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
 
+// ===== Typy Google API =====
+interface GoogleCredentialResponse {
+  credential: string
+}
+
+interface GoogleAccountsId {
+  initialize: (options: {
+    client_id: string
+    callback: (res: GoogleCredentialResponse) => void
+  }) => void
+  renderButton: (
+    container: HTMLElement,
+    options: {
+      theme: string
+      size: string
+      shape: string
+      text: string
+      logo_alignment: string
+    },
+  ) => void
+}
+
+interface GoogleAccounts {
+  accounts: {
+    id: GoogleAccountsId
+  }
+}
+
+declare global {
+  interface Window {
+    google: GoogleAccounts
+    handleCredentialResponse: (response: GoogleCredentialResponse) => void
+  }
+}
+
+// ===== Zmienne i logika lokalna =====
 const username = ref('')
 const password = ref('')
 const error = ref('')
@@ -52,9 +69,7 @@ async function login() {
       body: JSON.stringify({ username: username.value, password: password.value }),
     })
 
-    if (!res.ok) {
-      throw new Error('Błąd logowania')
-    }
+    if (!res.ok) throw new Error('Błąd logowania')
 
     const data = await res.json()
     authStore.setAuth(data.token, data.user, data.refreshToken)
@@ -64,27 +79,45 @@ async function login() {
   }
 }
 
-// @ts-expect-error - global callback dla Google API
-window.handleCredentialResponse = async (response: { credential: string }) => {
-  try {
-    const res = await fetch('http://localhost:3000/google-login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: response.credential }),
+// ===== Logika Google Login =====
+function handleCredentialResponse(response: GoogleCredentialResponse) {
+  fetch('http://localhost:3000/google-login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token: response.credential }),
+  })
+    .then((res) => {
+      if (!res.ok) throw new Error('Błąd logowania Google')
+      return res.json()
+    })
+    .then((data) => {
+      authStore.setAuth(data.token, data.user, data.refreshToken)
+      router.push('/')
+    })
+    .catch((err) => {
+      alert('Błąd logowania Google')
+      console.error(err)
+    })
+}
+
+onMounted(() => {
+  window.handleCredentialResponse = handleCredentialResponse
+
+  if (window.google?.accounts?.id) {
+    window.google.accounts.id.initialize({
+      client_id: '485046110075-evqncdgr6ae1qp98comc58thl6djjh7b.apps.googleusercontent.com',
+      callback: handleCredentialResponse,
     })
 
-    if (!res.ok) {
-      throw new Error('Błąd logowania Google')
-    }
-
-    const data = await res.json()
-    authStore.setAuth(data.token, data.user, data.refreshToken)
-    router.push('/')
-  } catch (err) {
-    alert('Błąd logowania Google')
-    console.error(err)
+    window.google.accounts.id.renderButton(document.getElementById('google-signin-btn')!, {
+      theme: 'outline',
+      size: 'large',
+      shape: 'pill',
+      text: 'signin_with',
+      logo_alignment: 'left',
+    })
   }
-}
+})
 </script>
 
 <style scoped>

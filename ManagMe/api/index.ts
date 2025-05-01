@@ -1,3 +1,4 @@
+//api/index.ts
 import type { Request, Response, NextFunction } from 'express'
 import express from 'express'
 import jwt from 'jsonwebtoken'
@@ -5,11 +6,11 @@ import 'dotenv/config'
 import cors from 'cors'
 import { users } from './users'
 import type { User } from './users'
+import { login, refreshToken, googleLogin } from './auth'
 
 const app = express()
 const port = 3000
 const tokenSecret = process.env.TOKEN_SECRET as string
-let storedRefreshToken = ''
 
 app.use(cors())
 app.use(express.json())
@@ -18,11 +19,6 @@ declare module 'express-serve-static-core' {
   interface Request {
     user?: User
   }
-}
-
-function generateToken(payload: object, expirationInSeconds: number) {
-  const exp = Math.floor(Date.now() / 1000) + expirationInSeconds
-  return jwt.sign({ ...payload, exp }, tokenSecret)
 }
 
 function verifyToken(req: Request, res: Response, next: NextFunction): void {
@@ -45,44 +41,11 @@ function verifyToken(req: Request, res: Response, next: NextFunction): void {
   })
 }
 
-app.post('/login', (req: Request, res: Response) => {
-  const { username, password } = req.body
+app.post('/google-login', googleLogin)
 
-  const user = users.find((u) => u.username === username && u.password === password)
+app.post('/login', login)
 
-  if (!user) {
-    return res.status(401).send('Invalid credentials')
-  }
-
-  const token = generateToken({ id: user.id, role: user.role }, 60)
-  const refreshToken = generateToken({ id: user.id }, 60 * 60)
-  storedRefreshToken = refreshToken
-
-  return res.status(200).json({
-    token,
-    refreshToken,
-    user: {
-      id: user.id,
-      username: user.username,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      role: user.role,
-    },
-  })
-})
-
-app.post('/refreshToken', (req: Request, res: Response) => {
-  const { refreshToken } = req.body
-  if (!refreshToken || refreshToken !== storedRefreshToken) {
-    return res.status(400).send('Invalid refresh token')
-  }
-
-  const newToken = generateToken({ foo: 'bar' }, 60)
-  const newRefreshToken = generateToken({ foo: 'bar' }, 60 * 60)
-  storedRefreshToken = newRefreshToken
-
-  return res.status(200).json({ token: newToken, refreshToken: newRefreshToken })
-})
+app.post('/refreshToken', refreshToken)
 
 app.get('/users', (req: Request, res: Response) => {
   const usersWithoutPasswords = users.map((user) => {

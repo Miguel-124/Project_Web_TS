@@ -16,6 +16,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "google-auth-library": "^9.15.1",
     "pinia": "^3.0.1",
     "sortablejs": "^1.15.6",
     "vue": "^3.5.13",
