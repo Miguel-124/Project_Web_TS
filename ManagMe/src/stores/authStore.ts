@@ -23,7 +23,8 @@ export const useAuthStore = defineStore('auth', () => {
 
   function setAuth(
     newToken: string,
-    user: { id: string; username: string; firstName: string; lastName: string; role: string }, newRefreshToken: string
+    user: { id: string; username: string; firstName: string; lastName: string; role: string },
+    newRefreshToken: string,
   ) {
     token.value = newToken
     currentUser.value = user
@@ -35,8 +36,10 @@ export const useAuthStore = defineStore('auth', () => {
 
   function logout() {
     token.value = null
+    refreshToken.value = null
     currentUser.value = null
     localStorage.removeItem('token')
+    localStorage.removeItem('refreshToken')
     localStorage.removeItem('currentUser')
   }
 

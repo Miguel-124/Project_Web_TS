@@ -202,7 +202,9 @@ function getUserName(userId: string): string {
 
 .kanban-column {
   flex: 1;
-  background-color: #1e1e1e;
+  background-color: var(--color-background-mute);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
   border-radius: 1rem;
   padding: 1rem;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
@@ -221,10 +223,11 @@ function getUserName(userId: string): string {
 }
 
 .kanban-card {
-  background-color: #2a2a2a;
+  background-color: var(--color-background-mute);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
   padding: 1rem;
   border-radius: 0.75rem;
-  border: 1px solid #444;
 }
 
 .kanban-actions {
