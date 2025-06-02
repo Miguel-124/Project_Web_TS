@@ -7,6 +7,14 @@ import cors from 'cors'
 import { users } from './users'
 import type { User } from './users'
 import { login, refreshToken, googleLogin } from './auth'
+import mongoose from 'mongoose'
+import noteRoutes from './routes/notes.router'
+
+mongoose.connect(process.env.MONGO_URI!, {
+  dbName: 'managme-db', // lub inna nazwa bazy
+})
+.then(() => console.log('✅ Połączono z MongoDB'))
+.catch(err => console.error('❌ Błąd połączenia z MongoDB:', err));
 
 const app = express()
 const port = 3000
@@ -14,6 +22,8 @@ const tokenSecret = process.env.TOKEN_SECRET as string
 
 app.use(cors())
 app.use(express.json())
+app.use('/api/notes', noteRoutes)
+
 
 declare module 'express-serve-static-core' {
   interface Request {
