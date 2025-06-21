@@ -39,7 +39,7 @@
         <button @click="openProject(project.id)" class="btn btn-open">Otwórz projekt</button>
         <div class="actions" v-if="hasRole('admin')">
           <router-link :to="`/edit/${project.id}`" class="btn btn-edit">Edytuj</router-link>
-          <button @click="deleteProject(project.id)" class="btn">Usuń</button>
+          <button @click="deleteProject(project.id)" class="btn btn-delete">Usuń</button>
         </div>
       </li>
     </ul>

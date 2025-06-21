@@ -103,20 +103,30 @@ function handleCredentialResponse(response: GoogleCredentialResponse) {
 onMounted(() => {
   window.handleCredentialResponse = handleCredentialResponse
 
-  if (window.google?.accounts?.id) {
-    window.google.accounts.id.initialize({
-      client_id: '485046110075-evqncdgr6ae1qp98comc58thl6djjh7b.apps.googleusercontent.com',
-      callback: handleCredentialResponse,
-    })
+  let attempts = 0
+  const interval = setInterval(() => {
+    const container = document.getElementById('google-signin-btn')
+    const googleReady = window.google?.accounts?.id
 
-    window.google.accounts.id.renderButton(document.getElementById('google-signin-btn')!, {
-      theme: 'outline',
-      size: 'large',
-      shape: 'pill',
-      text: 'signin_with',
-      logo_alignment: 'left',
-    })
-  }
+    if (container && googleReady && container.childElementCount === 0) {
+      window.google.accounts.id.initialize({
+        client_id: '485046110075-evqncdgr6ae1qp98comc58thl6djjh7b.apps.googleusercontent.com',
+        callback: handleCredentialResponse,
+      })
+
+      window.google.accounts.id.renderButton(container, {
+        theme: 'outline',
+        size: 'large',
+        shape: 'pill',
+        text: 'signin_with',
+        logo_alignment: 'left',
+      })
+
+      clearInterval(interval)
+    }
+
+    if (++attempts > 25) clearInterval(interval) // 25 * 200ms = 5s
+  }, 200)
 })
 </script>
 

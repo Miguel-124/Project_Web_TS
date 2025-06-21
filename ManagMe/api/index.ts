@@ -20,7 +20,7 @@ const app = express()
 const port = 3000
 const tokenSecret = process.env.TOKEN_SECRET as string
 
-app.use(cors())
+app.use(cors({ origin: 'http://localhost:5173', credentials: true }))
 app.use(express.json())
 app.use('/api/notes', noteRoutes)
 
