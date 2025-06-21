@@ -1,4 +1,0 @@
-{
-  "extends": "@tsconfig/node22/tsconfig.json",
-  "include": ["./**/*", "../e2e_tests/task-actions.ts", "../e2e_tests/login.spec.ts", "../e2e_tests/create-task.ts", "../e2e_tests/create-story.ts", "../e2e_tests/create-project.spec.ts", "../e2e_tests/create-project-old.spec.ts"]
-}

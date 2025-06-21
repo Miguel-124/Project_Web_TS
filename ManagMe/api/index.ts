@@ -13,8 +13,8 @@ import noteRoutes from './routes/notes.router'
 mongoose.connect(process.env.MONGO_URI!, {
   dbName: 'managme-db', // lub inna nazwa bazy
 })
-.then(() => console.log('✅ Połączono z MongoDB'))
-.catch(err => console.error('❌ Błąd połączenia z MongoDB:', err));
+.then(() => console.log('Połączono z MongoDB'))
+.catch(err => console.error('Błąd połączenia z MongoDB:', err));
 
 const app = express()
 const port = 3000
@@ -52,9 +52,7 @@ function verifyToken(req: Request, res: Response, next: NextFunction): void {
 }
 
 app.post('/google-login', googleLogin)
-
 app.post('/login', login)
-
 app.post('/refreshToken', refreshToken)
 
 app.get('/users', (req: Request, res: Response) => {

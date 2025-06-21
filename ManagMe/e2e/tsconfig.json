@@ -1,4 +1,4 @@
 {
   "extends": "@tsconfig/node22/tsconfig.json",
-  "include": ["./**/*", "../e2e/delete-project-story-task.spec.ts", "../e2e/edit-project-story-task.spec.ts"]
+  "include": ["./**/*", "../e2e/delete-project-story-task.spec.ts", "../e2e/edit-project-story-task.spec.ts", "../e2e/task-actions.ts", "../e2e/login.spec.ts", "../e2e/create-task.ts", "../e2e/create-story.ts", "../e2e/create-project.spec.ts", "../e2e/create-project-old.spec.ts"]
 }
