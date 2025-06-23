@@ -65,12 +65,12 @@
 
       <!-- Task actions: zakończ, edytuj, zapisz, usuń -->
       <div class="task-actions">
-        <button v-if="task.status === 'todo'" @click="assignUser" class="btn btn-edit">
+        <button v-if="task.status === 'todo'" @click="assignUser" class="btn btn-open">
           Rozpocznij zadanie
         </button>
 
         <!-- Zakończ zadanie (jeśli w trakcie) -->
-        <button v-if="task.status === 'in progress'" @click="markAsDone" class="btn btn-edit">
+        <button v-if="task.status === 'in progress'" @click="markAsDone" class="btn btn-open">
           Zakończ zadanie
         </button>
 
@@ -78,13 +78,13 @@
         <button
           v-if="!isEditing && (task.status === 'todo' || task.status === 'in progress')"
           @click="isEditing = true"
-          class="btn btn-open"
+          class="btn btn-edit"
         >
           Edytuj
         </button>
 
         <!-- Zapisz -->
-        <button v-if="isEditing" @click="saveChanges" class="btn btn-open">Zapisz</button>
+        <button v-if="isEditing" @click="saveChanges" class="btn btn-save">Zapisz</button>
 
         <!-- Usuń -->
         <button

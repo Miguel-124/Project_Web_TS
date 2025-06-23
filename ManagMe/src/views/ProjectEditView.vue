@@ -13,7 +13,7 @@
           rows="2"
         />
       </div>
-      <button type="submit" class="btn">Zapisz zmiany</button>
+      <button type="submit" class="btn btn-save">Zapisz zmiany</button>
     </form>
   </div>
 </template>

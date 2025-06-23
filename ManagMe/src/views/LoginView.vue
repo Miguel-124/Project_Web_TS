@@ -128,6 +128,9 @@ onMounted(() => {
     if (++attempts > 25) clearInterval(interval) // 25 * 200ms = 5s
   }, 200)
 })
+
+
+
 </script>
 
 <style scoped>

@@ -68,7 +68,7 @@
             >
               ⟲ Cofnij ⟲
             </button>
-            <button @click="deleteStory(story.id)" v-if="hasRole('admin')" class="btn delete">Usuń</button>
+            <button @click="deleteStory(story.id)" v-if="hasRole('admin')" class="btn btn-delete">Usuń</button>
           </div>
         </li>
       </ul>
