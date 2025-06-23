@@ -1,24 +1,23 @@
 import { Request, Response } from 'express'
-import { StoryModel } from '../models/story.model'
+import * as storyService from '../services/story.services'
 
 export const getStories = async (req: Request, res: Response) => {
   const projectId = req.params.projectId
-  const stories = await StoryModel.find({ projectId })
+  const stories = await storyService.getStoriesByProject(projectId)
   res.json(stories)
 }
 
 export const createStory = async (req: Request, res: Response) => {
-  const newStory = new StoryModel(req.body)
-  await newStory.save()
+  const newStory = await storyService.createStory(req.body)
   res.status(201).json(newStory)
 }
 
 export const updateStory = async (req: Request, res: Response) => {
-  const story = await StoryModel.findByIdAndUpdate(req.params.id, req.body, { new: true })
+  const story = await storyService.updateStory(req.params.id, req.body)
   res.json(story)
 }
 
 export const deleteStory = async (req: Request, res: Response) => {
-  await StoryModel.findByIdAndDelete(req.params.id)
+  await storyService.deleteStory(req.params.id)
   res.status(204).send()
 }

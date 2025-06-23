@@ -8,6 +8,7 @@ import { users } from './users'
 import type { User } from './users'
 import { login, refreshToken, googleLogin } from './auth'
 import mongoose from 'mongoose'
+
 import storyRoutes from './routes/story.routes'
 import projectRoutes from './routes/project.routes'
 import taskRoutes from './routes/tasks.routes'
@@ -25,6 +26,7 @@ const tokenSecret = process.env.TOKEN_SECRET as string
 
 app.use(cors({ origin: 'http://localhost:5173', credentials: true }))
 app.use(express.json())
+
 app.use('/api/stories', storyRoutes)
 app.use('/api/projects', projectRoutes)
 app.use('/api/tasks', taskRoutes)
